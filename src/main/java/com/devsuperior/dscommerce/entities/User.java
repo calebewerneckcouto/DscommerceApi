@@ -1,11 +1,9 @@
 package com.devsuperior.dscommerce.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_user")
@@ -21,11 +19,14 @@ public class User {
     private LocalDate birthDate;
     private String password;
 
-    // Construtor padrão
+    @OneToMany(mappedBy = "client")  // Corrected here
+    private List<Order> orders = new ArrayList<>();
+
+    // Default constructor
     public User() {
     }
 
-    // Construtor com parâmetros
+    // Constructor with parameters
     public User(Long id, String name, String email, String phone, LocalDate birthDate, String password) {
         this.id = id;
         this.name = name;
@@ -35,7 +36,7 @@ public class User {
         this.password = password;
     }
 
-    // Getters e Setters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -82,5 +83,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }
