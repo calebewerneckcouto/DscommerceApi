@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,6 +20,16 @@ public class ProductService {
 
         Product product = productsRepository.findById(id).get();
        return new ProductDTO(product);
+
+
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductDTO> findAll(){
+
+       List<Product> result = productsRepository.findAll();
+        return result.stream().map(x->new ProductDTO(x)).toList();
+
 
 
     }
