@@ -5,6 +5,8 @@ import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Product;
 import com.devsuperior.dscommerce.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +29,9 @@ public class ProductController {
 
 
     @GetMapping
-    public List<ProductDTO> FindAll(){
+    public Page<ProductDTO> FindAll(Pageable pageable){
 
-        return productService.findAll();
+        return productService.findAll(pageable);
     }
 
 
