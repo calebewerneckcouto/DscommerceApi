@@ -15,40 +15,53 @@ import java.util.Optional;
 
 @Service
 public class ProductService {
-    @Autowired
-    private ProductsRepository productsRepository;
-    @Transactional(readOnly = true)
-    public ProductDTO findById(Long id){
+	@Autowired
+	private ProductsRepository productsRepository;
 
-        Product product = productsRepository.findById(id).get();
-       return new ProductDTO(product);
+	@Transactional(readOnly = true)
+	public ProductDTO findById(Long id) {
 
+		Product product = productsRepository.findById(id).get();
+		return new ProductDTO(product);
 
-    }
+	}
 
-    @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(Pageable pageable){
+	@Transactional(readOnly = true)
+	public Page<ProductDTO> findAll(Pageable pageable) {
 
-      Page<Product>result = productsRepository.findAll(pageable);
-        return result.map(x->new ProductDTO(x));
+		Page<Product> result = productsRepository.findAll(pageable);
+		return result.map(x -> new ProductDTO(x));
 
+	}
 
+	@Transactional
+	public ProductDTO insert(ProductDTO dto) {
 
-    }
+		Product entity = new Product();
+		copyDtoToEntity(dto, entity);
 
-    @Transactional
-    public ProductDTO insert(ProductDTO dto){
+		entity = productsRepository.save(entity);
+		return new ProductDTO(entity);
 
-      Product entity = new Product();
-      entity.setName(dto.getName());
-      entity.setDescription(dto.getDescription());
-      entity.setPrice(dto.getPrice());
-      entity.setImgUrl(dto.getImgUrl());
+	}
 
-      entity = productsRepository.save(entity);
-      return new ProductDTO(entity);
+	@Transactional
+	public ProductDTO update(Long id, ProductDTO dto) {
 
+		Product entity = productsRepository.getReferenceById(id);
+		copyDtoToEntity(dto, entity);
 
+		entity = productsRepository.save(entity);
+		return new ProductDTO(entity);
 
-    }
+	}
+
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setPrice(dto.getPrice());
+		entity.setImgUrl(dto.getImgUrl());
+
+	}
+
 }
