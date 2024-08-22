@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devsuperior.dscommerce.ProductsRepository;
 import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Product;
+import com.devsuperior.dscommerce.repositories.ProductRepository;
 import com.devsuperior.dscommerce.services.exceptions.DatabaseException;
 import com.devsuperior.dscommerce.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ProductService {
 	@Autowired
-	private ProductsRepository productsRepository;
+	private ProductRepository productsRepository;
 
 	@Transactional(readOnly = true)
 	public ProductDTO findById(Long id) {
@@ -28,9 +28,9 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAll(Pageable pageable) {
+	public Page<ProductDTO> findAll(String name,Pageable pageable) {
 
-		Page<Product> result = productsRepository.findAll(pageable);
+		Page<Product> result = productsRepository.searchByName(name,pageable);
 		return result.map(x -> new ProductDTO(x));
 
 	}
