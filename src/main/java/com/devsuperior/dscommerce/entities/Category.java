@@ -7,21 +7,19 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name="tb_category")
+@Table(name = "tb_category")
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
 
     @ManyToMany(mappedBy = "categories")
-    private Set<Product> categories = new HashSet<>();
-
+    private Set<Product> products = new HashSet<>();
 
     public Category() {
     }
-
 
     public Category(Long id, String name) {
         this.id = id;
@@ -44,24 +42,22 @@ public class Category {
         this.name = name;
     }
 
-    public Set<Product> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Set<Product> categories) {
-        this.categories = categories;
+    public Set<Product> getProducts() {
+        return products;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Category category = (Category) o;
+
         return Objects.equals(id, category.id);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return id != null ? id.hashCode() : 0;
     }
 }

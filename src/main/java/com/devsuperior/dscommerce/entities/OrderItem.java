@@ -12,31 +12,34 @@ public class OrderItem {
 
     @EmbeddedId
     private OrderItemPK id = new OrderItemPK();
+
     private Integer quantity;
     private Double price;
+
     public OrderItem() {
     }
 
-    public OrderItem(Order order,Product product,Integer quantity, Double price) {
-        id.setProduct(product);
+    public OrderItem(Order order, Product product, Integer quantity, Double price) {
         id.setOrder(order);
+        id.setProduct(product);
         this.quantity = quantity;
         this.price = price;
     }
 
-    public void setOrder(Order order){
-        id.setOrder(order);
-    }
-    public Order getOrder(){
+    public Order getOrder() {
         return id.getOrder();
     }
 
-    public void setProduct(Product product){
-        id.setProduct(product);
+    public void setOrder(Order order) {
+        id.setOrder(order);
     }
 
-    public Product getProduct(){
+    public Product getProduct() {
         return id.getProduct();
+    }
+
+    public void setProduct(Product product) {
+        id.setProduct(product);
     }
 
     public Integer getQuantity() {
@@ -58,12 +61,15 @@ public class OrderItem {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderItem orderItem)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OrderItem orderItem = (OrderItem) o;
+
         return Objects.equals(id, orderItem.id);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return id != null ? id.hashCode() : 0;
     }
 }

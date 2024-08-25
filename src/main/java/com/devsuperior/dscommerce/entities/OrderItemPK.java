@@ -9,13 +9,13 @@ import java.util.Objects;
 @Embeddable
 public class OrderItemPK {
 
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
-        @ManyToOne
-        @JoinColumn(name = "order_id")
-        private Order order;
-        @ManyToOne
-        @JoinColumn(name = "product_id")
-        private Product product;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     public OrderItemPK() {
     }
@@ -39,12 +39,18 @@ public class OrderItemPK {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderItemPK that)) return false;
-        return Objects.equals(order, that.order) && Objects.equals(product, that.product);
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OrderItemPK that = (OrderItemPK) o;
+
+        if (!Objects.equals(order, that.order)) return false;
+        return Objects.equals(product, that.product);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        int result = order != null ? order.hashCode() : 0;
+        result = 31 * result + (product != null ? product.hashCode() : 0);
+        return result;
     }
 }
