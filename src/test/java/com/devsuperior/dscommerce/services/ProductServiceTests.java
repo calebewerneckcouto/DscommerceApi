@@ -14,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.entities.Product;
 import com.devsuperior.dscommerce.repositories.ProductRepository;
+import com.devsuperior.dscommerce.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscommerce.tests.ProductFactory;
 
 @ExtendWith(SpringExtension.class)//Nao carrega o contexto da aplicação
@@ -41,6 +42,7 @@ public class ProductServiceTests {
 		product = ProductFactory.createProduct(productName);
 		
 		Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
+		Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
 	}
 	
@@ -56,5 +58,21 @@ public class ProductServiceTests {
 		
 		
 	}
+	
+	
+	
+	
+	@Test// retornar excecao ResourceNotFound quando o id nao existir....
+	public void findByIdShouldReturnResourceNotFoundExceptionWhenIdDoesNotExists() {
+		
+		
+		Assertions.assertThrows(ResourceNotFoundException.class,()->{
+			service.findById(nonExistingId);
+		});
+		
+		
+		
+	}
+	
 	
 }
