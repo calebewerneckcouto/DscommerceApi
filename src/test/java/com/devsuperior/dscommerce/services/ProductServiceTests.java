@@ -39,6 +39,8 @@ public class ProductServiceTests {
 	
 	private Product product;
 	
+	private ProductDTO dto;
+	
 	private PageImpl<Product>page;
 	
 	@BeforeEach // antes de rodar qualquer coisa, execute isso....
@@ -49,12 +51,14 @@ public class ProductServiceTests {
 		productName = "Playstation 5";
 		
 		product = ProductFactory.createProduct(productName);
+		dto = new ProductDTO(product);
 		
 		page = new PageImpl<Product>(List.of(product));
 		
 		Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));//retorna optional (exceção caso nao ache id)
 		Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());//retorna vazio pq nao tem nada na lista
 		Mockito.when(repository.searchByName(any(), (Pageable)any())).thenReturn(page);//retonar pagina...
+		Mockito.when(repository.save(any())).thenReturn(product); // passa qualquer tipo produto salvar e retorna produto salvo
 
 	}
 	
@@ -96,6 +100,16 @@ public class ProductServiceTests {
 		Assertions.assertNotNull(result);
 		Assertions.assertEquals(result.getSize(), 1);
 		Assertions.assertEquals(result.iterator().next().getName(), productName);
+		
+	}
+	
+	@Test// insert deve retornar Product DTO ao salvar...
+	public void insertShouldReturnProductDTO() {
+		
+		ProductDTO result = service.insert(dto);
+		
+		Assertions.assertNotNull(result);//verifica se nao e nulo
+		Assertions.assertEquals(result.getId(), product.getId());//verifica se e o mesmo id...
 		
 	}
 	
