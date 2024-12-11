@@ -24,6 +24,8 @@ import com.devsuperior.dscommerce.repositories.ProductRepository;
 import com.devsuperior.dscommerce.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscommerce.tests.ProductFactory;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @ExtendWith(SpringExtension.class)//Nao carrega o contexto da aplicação
 public class ProductServiceTests {
 	
@@ -59,7 +61,8 @@ public class ProductServiceTests {
 		Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());//retorna vazio pq nao tem nada na lista
 		Mockito.when(repository.searchByName(any(), (Pageable)any())).thenReturn(page);//retonar pagina...
 		Mockito.when(repository.save(any())).thenReturn(product); // passa qualquer tipo produto salvar e retorna produto salvo
-
+        Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);//caso onde o produto existe....
+        Mockito.when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);//caso nao exista retorna exceção entity not found exception
 	}
 	
 	
@@ -97,9 +100,9 @@ public class ProductServiceTests {
 		Pageable pageable = PageRequest.of(0, 12);
 		Page<ProductMinDTO> result = service.findAll(productName, pageable);
 		
-		Assertions.assertNotNull(result);
-		Assertions.assertEquals(result.getSize(), 1);
-		Assertions.assertEquals(result.iterator().next().getName(), productName);
+		Assertions.assertNotNull(result); //verfica se nao e nulo
+		Assertions.assertEquals(result.getSize(), 1);// verifica se o tamanho da lista... no caso apenas um metodo
+		Assertions.assertEquals(result.iterator().next().getName(), productName); //pega nome do produto e compara...
 		
 	}
 	
@@ -111,6 +114,23 @@ public class ProductServiceTests {
 		Assertions.assertNotNull(result);//verifica se nao e nulo
 		Assertions.assertEquals(result.getId(), product.getId());//verifica se e o mesmo id...
 		
+	}
+	
+	
+	@Test// atualize deve retornar Product Dto quando o id existir...
+	public void updateShouldReturnProductDTOWhenIdExists() {
+		ProductDTO result = service.update(existingId, dto);
+		Assertions.assertNotNull(result);//verifica se nao e nulo
+		Assertions.assertEquals(result.getId(),existingId);//verifica se o id e igual ao id existente
+		Assertions.assertEquals(result.getName(),dto.getName());//verifica se o nome e igual ao nome existente
+	}
+	
+	
+	@Test// atualize deve retornar ResourceNotFoundException quando o id nao  existir...
+	public void updateShouldReturnResourceNotFoundExceptionWhenDoesNotExists() {
+		Assertions.assertThrows(ResourceNotFoundException.class,()->{
+			service.update(nonExistingId, dto); // passando id que nao existe para dar a exceção
+		});
 	}
 	
 	
