@@ -28,11 +28,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-<dependency>
-  <groupId>net.bytebuddy</groupId>
-  <artifactId>byte-buddy</artifactId>
-  <version>1.14.4</version> <!-- Or the latest version -->
-</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.14.4</version> <!-- Or the latest version -->
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -87,14 +87,14 @@
 				<version>3.1.0</version> <!--$NO-MVN-MAN-VER$ -->
 			</plugin>
 			<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.10.1</version>
-    <configuration>
-        <source>${java.version}</source>
-        <target>${java.version}</target>
-    </configuration>
-</plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -107,6 +107,9 @@
 						<exclude>com/devsuperior/dscommerce/config/**</exclude>
 						<exclude>com/devsuperior/dscommerce/entities/**</exclude>
 						<exclude>com/devsuperior/dscommerce/dto/**</exclude>
+						<exclude>com/devsuperior/dscommerce</exclude>
+						<exclude>com/devsuperior/dscommerce/util/**</exclude>
+						<exclude>com/devsuperior/dscommerce/controllers/**</exclude>
 						<exclude>
 							com/devsuperior/dscommerce/controllers/handlers/**</exclude>
 						<exclude>
