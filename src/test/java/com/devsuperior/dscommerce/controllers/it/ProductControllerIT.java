@@ -54,10 +54,10 @@ public class ProductControllerIT {
 		adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, adminPassword);
 		clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, clientPassword);
 		invalidToken = adminToken + "xpto";// Simulates wrong password
-		
+
 		product = new Product(null, "Console Playstation 5", "Videogame irado.....", 3999.90, "https://cwc3d.net");
 
-		Category category = new Category(2L,"Eletro");
+		Category category = new Category(2L, "Eletro");
 		product.getCategories().add(category);
 		productDTO = new ProductDTO(product);
 
@@ -104,13 +104,10 @@ public class ProductControllerIT {
 		String jsonBody = objectMapper.writeValueAsString(productDTO);
 
 		ResultActions result = mockMvc
-				.perform(post("/products")
-				.header("Authorization", "Bearer " + adminToken)
-				.content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON))
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print());
-		
+
 		result.andExpect(status().isCreated());
 		result.andExpect(jsonPath("$.id").value(26L));
 		result.andExpect(jsonPath("$.name").value("Console Playstation 5"));
@@ -118,6 +115,89 @@ public class ProductControllerIT {
 		result.andExpect(jsonPath("$.price").value(3999.90));
 		result.andExpect(jsonPath("$.imgUrl").value("https://cwc3d.net"));
 		result.andExpect(jsonPath("$.categories[0].id").value(2L));
+
+	}
+
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName() throws Exception {
+
+		product.setName("ab");
+		productDTO = new ProductDTO(product);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 		
+		result.andExpect(status().isUnprocessableEntity());
+				
+
+	}
+	
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDescription() throws Exception {
+
+		product.setDescription("ab");
+		productDTO = new ProductDTO(product);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isUnprocessableEntity());
+				
+
+	}
+	
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsNegative() throws Exception {
+
+		product.setPrice(-5.0);
+		productDTO = new ProductDTO(product);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isUnprocessableEntity());
+				
+
+	}
+	
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsZero() throws Exception {
+
+		product.setPrice(0.0);
+		productDTO = new ProductDTO(product);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isUnprocessableEntity());
+				
+
+	}
+	
+	@Test
+	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndProductHasNotCategory() throws Exception {
+
+		product.getCategories().clear();
+		productDTO = new ProductDTO(product);
+		String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+		ResultActions result = mockMvc
+				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+		
+		result.andExpect(status().isUnprocessableEntity());
+				
+
 	}
 }
