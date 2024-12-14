@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.controllers.it;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.dscommerce.dto.ProductDTO;
@@ -37,7 +39,8 @@ public class ProductControllerIT {
 	private String clientUsername, clientPassword, adminUsername, adminPassword;
 
 	private String productName, adminToken, clientToken, invalidToken;
-
+    
+	private Long existingProductId,nonExistingProductId,dependentProductId;
 	private ProductDTO productDTO;
 	private Product product;
 
@@ -50,6 +53,11 @@ public class ProductControllerIT {
 		adminPassword = "123456";
 
 		productName = "Macbook";
+		
+		
+		existingProductId = 2L;
+		nonExistingProductId = 100L;
+		dependentProductId = 3L;
 
 		adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, adminPassword);
 		clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, clientPassword);
@@ -100,7 +108,7 @@ public class ProductControllerIT {
 	}
 
 	@Test
-	public void findAllShouldReturnPageWhenNameParamIsNotEmpty() throws Exception {
+	public void findAllShouldReturnPageWhenRigth() throws Exception {
 	    // Realiza uma requisição GET na rota "/products" com o parâmetro 'name' e verifica se o status é 200 (OK).
 	    ResultActions result = mockMvc
 	        .perform(get("/products?name={productName}", productName).accept(MediaType.APPLICATION_JSON));
@@ -244,5 +252,71 @@ public class ProductControllerIT {
 	    
 	    // Verifica se o status da resposta é 401 (Unauthorized).
 	    result.andExpect(status().isUnauthorized());
+	}
+	
+	@Test
+	public void deleteShouldReturnNoContentWhenIdExistsAndAdminLogged() throws Exception {
+		
+		
+		//id existente e admin retorna nocontent
+		 ResultActions result = mockMvc
+			        .perform(delete("/products/{id}",existingProductId).header("Authorization", "Bearer " + adminToken)
+			            .accept(MediaType.APPLICATION_JSON));
+		 result.andExpect(status().isNoContent());
+		 
+		
+	}
+	
+	@Test
+	public void deleteShouldReturnNotFoundWhenIdExistsAndAdminLogged() throws Exception {
+		
+		
+		//id nao existe e admin retorna nocontent
+		 ResultActions result = mockMvc
+			        .perform(delete("/products/{id}",nonExistingProductId).header("Authorization", "Bearer " + adminToken)
+			            .accept(MediaType.APPLICATION_JSON));
+		 result.andExpect(status().isNotFound());
+		 
+		
+	}
+	
+	@Test
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void deleteShouldReturnBadRequestWhenIdExistsAndAdminLogged() throws Exception {
+		
+		
+		//id dependente e admin retorna BadRequest
+		 ResultActions result = mockMvc
+			        .perform(delete("/products/{id}",dependentProductId).header("Authorization", "Bearer " + adminToken)
+			            .accept(MediaType.APPLICATION_JSON));
+		 result.andExpect(status().isBadRequest());
+		 
+		
+	}
+	
+	
+	@Test
+	public void deleteShouldReturnForbiddentWhenClientLogged() throws Exception {
+		
+		
+		//id existe e cliente retorna Forbidden nao tem autorizacao
+		 ResultActions result = mockMvc
+			        .perform(delete("/products/{id}",existingProductId).header("Authorization", "Bearer " + clientToken)
+			            .accept(MediaType.APPLICATION_JSON));
+		 result.andExpect(status().isForbidden());
+		 
+		
+	}
+	@Test
+	public void deleteShouldReturnUnauthorizedtWhenInvalidToken() throws Exception {
+		
+		
+		//id existe token invalido 
+		 ResultActions result = mockMvc
+			        .perform(delete("/products/{id}",existingProductId).header("Authorization", "Bearer " + invalidToken)
+			            .accept(MediaType.APPLICATION_JSON));
+		 result.andExpect(status().isUnauthorized());
+		 
+		
 	}
 }
