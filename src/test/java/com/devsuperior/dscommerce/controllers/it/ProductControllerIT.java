@@ -100,104 +100,149 @@ public class ProductControllerIT {
 	}
 
 	@Test
+	public void findAllShouldReturnPageWhenNameParamIsNotEmpty() throws Exception {
+	    // Realiza uma requisição GET na rota "/products" com o parâmetro 'name' e verifica se o status é 200 (OK).
+	    ResultActions result = mockMvc
+	        .perform(get("/products?name={productName}", productName).accept(MediaType.APPLICATION_JSON));
+
+	    // Verifica se o status da resposta é 200 (OK).
+	    result.andExpect(status().isOk());
+
+	    // Verifica se o primeiro item no conteúdo retornado tem o ID igual a 3.
+	    result.andExpect(jsonPath("$.content[0].id").value(3L));
+
+	    // Verifica se o nome do primeiro item no conteúdo é "Macbook Pro".
+	    result.andExpect(jsonPath("$.content[0].name").value("Macbook Pro"));
+
+	    // Verifica se o preço do primeiro item é 1250.0.
+	    result.andExpect(jsonPath("$.content[0].price").value(1250.0));
+
+	    // Verifica se a URL da imagem do primeiro item corresponde ao esperado.
+	    result.andExpect(jsonPath("$.content[0].imgUrl").value(
+	        "https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/3-big.jpg"));
+	}
+
+	@Test
 	public void insertShouldReturnProductDTOCreatedWhenAdminLogged() throws Exception {
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
+	    // Cria o JSON do produto a partir de um objeto DTO.
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-				.andDo(MockMvcResultHandlers.print());
+	    // Realiza uma requisição POST para inserir o produto com autenticação de um administrador.
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+	        .andDo(MockMvcResultHandlers.print());
 
-		result.andExpect(status().isCreated());
-		result.andExpect(jsonPath("$.id").value(26L));
-		result.andExpect(jsonPath("$.name").value("Console Playstation 5"));
-		result.andExpect(jsonPath("$.description").value("Videogame irado....."));
-		result.andExpect(jsonPath("$.price").value(3999.90));
-		result.andExpect(jsonPath("$.imgUrl").value("https://cwc3d.net"));
-		result.andExpect(jsonPath("$.categories[0].id").value(2L));
+	    // Verifica se o status da resposta é 201 (Created).
+	    result.andExpect(status().isCreated());
 
+	    // Verifica os atributos do produto retornado.
+	    result.andExpect(jsonPath("$.id").value(26L)); // ID esperado do produto.
+	    result.andExpect(jsonPath("$.name").value("Console Playstation 5")); // Nome esperado.
+	    result.andExpect(jsonPath("$.description").value("Videogame irado.....")); // Descrição esperada.
+	    result.andExpect(jsonPath("$.price").value(3999.90)); // Preço esperado.
+	    result.andExpect(jsonPath("$.imgUrl").value("https://cwc3d.net")); // URL da imagem.
+	    result.andExpect(jsonPath("$.categories[0].id").value(2L)); // ID da primeira categoria.
 	}
 
 	@Test
 	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName() throws Exception {
+	    // Configura um nome inválido para o produto.
+	    product.setName("ab");
+	    productDTO = new ProductDTO(product);
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		product.setName("ab");
-		productDTO = new ProductDTO(product);
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
-
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		
-		result.andExpect(status().isUnprocessableEntity());
-				
-
+	    // Realiza uma requisição POST com um nome inválido.
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    // Verifica se o status da resposta é 422 (Unprocessable Entity).
+	    result.andExpect(status().isUnprocessableEntity());
 	}
-	
-	
+
+	// Os próximos métodos seguem a mesma lógica, ajustando o campo inválido para o teste:
+
 	@Test
 	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDescription() throws Exception {
+	    // Configura uma descrição inválida.
+	    product.setDescription("ab");
+	    productDTO = new ProductDTO(product);
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		product.setDescription("ab");
-		productDTO = new ProductDTO(product);
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
-
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		
-		result.andExpect(status().isUnprocessableEntity());
-				
-
+	    // Realiza a requisição POST.
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    result.andExpect(status().isUnprocessableEntity());
 	}
-	
-	
+
 	@Test
 	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsNegative() throws Exception {
+	    // Configura um preço negativo.
+	    product.setPrice(-5.0);
+	    productDTO = new ProductDTO(product);
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		product.setPrice(-5.0);
-		productDTO = new ProductDTO(product);
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
-
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		
-		result.andExpect(status().isUnprocessableEntity());
-				
-
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    result.andExpect(status().isUnprocessableEntity());
 	}
-	
-	
+
 	@Test
 	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsZero() throws Exception {
+	    // Configura o preço como zero.
+	    product.setPrice(0.0);
+	    productDTO = new ProductDTO(product);
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		product.setPrice(0.0);
-		productDTO = new ProductDTO(product);
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
-
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		
-		result.andExpect(status().isUnprocessableEntity());
-				
-
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    result.andExpect(status().isUnprocessableEntity());
 	}
-	
+
 	@Test
 	public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndProductHasNotCategory() throws Exception {
+	    // Remove todas as categorias do produto.
+	    product.getCategories().clear();
+	    productDTO = new ProductDTO(product);
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
-		product.getCategories().clear();
-		productDTO = new ProductDTO(product);
-		String jsonBody = objectMapper.writeValueAsString(productDTO);
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + adminToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    result.andExpect(status().isUnprocessableEntity());
+	}
 
-		ResultActions result = mockMvc
-				.perform(post("/products").header("Authorization", "Bearer " + adminToken).content(jsonBody)
-						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-		
-		result.andExpect(status().isUnprocessableEntity());
-				
+	@Test
+	public void insertShouldReturnForbiddenWhenClientLogged() throws Exception {
+	    // Tenta inserir um produto com autenticação de cliente (não administrador).
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
 
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + clientToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    // Verifica se o status da resposta é 403 (Forbidden).
+	    result.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void insertShouldReturnUnauthorizenWhenInvalidToken() throws Exception {
+	    // Tenta inserir um produto com um token inválido.
+	    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+	    ResultActions result = mockMvc
+	        .perform(post("/products").header("Authorization", "Bearer " + invalidToken)
+	            .content(jsonBody).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+	    
+	    // Verifica se o status da resposta é 401 (Unauthorized).
+	    result.andExpect(status().isUnauthorized());
 	}
 }
